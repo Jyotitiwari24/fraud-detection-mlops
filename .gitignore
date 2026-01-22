@@ -1,0 +1,51 @@
+# Python
+pycache/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Data files (too large for git)
+*.csv
+creditcard_data.csv
+
+# Model files (use Git LFS or store separately)
+models/*.pkl
+*.pkl
+
+# Monitoring logs
+monitoring/*.jsonl
+
+# MLflow
+mlruns/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
+
+# Images
+*.png
+*.jpg
+*.jpeg
+
+# Environment variables
+.env
+
+# Docker
+*.tar

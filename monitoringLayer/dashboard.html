@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-value.fraud {
+            color: #e74c3c;
+        }
+        
+        .stat-value.legit {
+            color: #27ae60;
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .test-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .button:hover {
+            transform: scale(1.05);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result.fraud {
+            background: #ffe5e5;
+            border: 2px solid #e74c3c;
+        }
+        
+        .result.legit {
+            background: #e8f8f5;
+            border: 2px solid #27ae60;
+        }
+        
+        .result h3 {
+            margin-bottom: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+
+            color: #667eea;
+            display: none;
+        }
+        
+        .refresh-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Fraud Detection Dashboard</h1>
+            <p>Real-time monitoring and testing</p>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>📊 System Stats 
+                    <button class="refresh-btn" onclick="loadStats()">Refresh</button>
+                </h2>
+                <div id="stats-content">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🎯 Model Info</h2>
+                <div id="model-info">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📈 Analysis</h2>
+                <div id="analysis-content">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🧪 Test Transaction</h2>
+            <form id="test-form">
+                <div class="form-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="amount" value="150.50" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Time (seconds)</label>
+                    <input type="number" id="time" value="12345" required>
+                </div>
+                <p style="color: #666; margin-bottom: 15px;">
+                    <small>V1-V28 features are auto-generated for demo</small>
+                </p>
+                <button type="submit" class="button">Check Transaction</button>
+            </form>
+            
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+const API_URL = "http://localhost:8000";
+
+// Load statistics
+async function loadStats() {
+    try {
+        const response = await fetch(API_URL + "/monitoring/stats");
+        const data = await response.json();
+
+        let html = "";
+        for (const [key, value] of Object.entries(data)) {
+            const label = key.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+            const valueClass = key.includes("fraud") ? "fraud" : "";
+            html += `
+                <div class="stat">
+                    <span class="stat-label">${label}</span>
+                    <span class="stat-value ${valueClass}">${value}</span>
+                </div>
+            `;
+        }
+
+        document.getElementById("stats-content").innerHTML = html;
+    } catch (error) {
+        document.getElementById("stats-content").innerHTML =
+            "<p style='color:red'>API not reachable</p>";
+    }
+}
+
+// Load model info
+async function loadModelInfo() {
+    try {
+        const response = await fetch(API_URL + "/health");
+        const data = await response.json();
+
+        const m = data.model_info.metrics;
+        document.getElementById("model-info").innerHTML = `
+            <div class="stat"><span class="stat-label">Model</span><span class="stat-value">${data.model_info.model_type}</span></div>
+            <div class="stat"><span class="stat-label">Precision</span><span class="stat-value">${(m.precision*100).toFixed(2)}%</span></div>
+            <div class="stat"><span class="stat-label">Recall</span><span class="stat-value">${(m.recall*100).toFixed(2)}%</span></div>
+            <div class="stat"><span class="stat-label">F1</span><span class="stat-value">${(m.f1_score*100).toFixed(2)}%</span></div>
+        `;
+    } catch {
+        document.getElementById("model-info").innerHTML = "<p>Error loading model info</p>";
+    }
+}
+
+// Load analysis
+async function loadAnalysis() {
+    try {
+        const response = await fetch(API_URL + "/monitoring/analysis");
+        const data = await response.json();
+
+        if (data.status === "no data") {
+            document.getElementById("analysis-content").innerHTML = "<p>No predictions yet</p>";
+            return;
+        }
+
+        document.getElementById("analysis-content").innerHTML = `
+            <div class="stat"><span class="stat-label">Total Predictions</span><span class="stat-value">${data.total_predictions}</span></div>
+            <div class="stat"><span class="stat-label">Fraud Rate</span><span class="stat-value fraud">${data.fraud_rate}%</span></div>
+            <div class="stat"><span class="stat-label">Avg Probability</span><span class="stat-value">${data.avg_probability}</span></div>
+        `;
+    } catch {
+        document.getElementById("analysis-content").innerHTML = "<p>Error loading analysis</p>";
+    }
+}
+
+// Handle form
+document.getElementById("test-form").addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const amount = parseFloat(document.getElementById("amount").value);
+    const time = parseFloat(document.getElementById("time").value);
+
+    const tx = { Amount: amount, Time: time };
+    for (let i = 1; i <= 28; i++) {
+        tx["V" + i] = (Math.random() - 0.5) * 4;
+    }
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.style.display = "block";
+    resultDiv.innerHTML = "Checking...";
+
+    try {
+        const response = await fetch(API_URL + "/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tx)
+        });
+
+        const r = await response.json();
+
+        resultDiv.className = r.is_fraud ? "result fraud" : "result legit";
+        resultDiv.innerHTML = `
+            <h3>${r.message}</h3>
+            <p><b>Probability:</b> ${(r.fraud_probability*100).toFixed(2)}%</p>
+            <p><b>Risk:</b> ${r.risk_level}</p>
+        `;
+
+        loadStats();
+        loadAnalysis();
+
+    } catch (err) {
+        resultDiv.innerHTML = "API error";
+    }
+});
+
+// Initial load
+loadStats();
+loadModelInfo();
+loadAnalysis();
+setInterval(() => {
+    loadStats();
+    loadAnalysis();
+}, 30000);
+</script>
+</body>
+</html>
