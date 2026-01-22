@@ -25,7 +25,7 @@ class FraudMonitor:
             "last_updated": None,
         }
 
-    # 🔥 THIS MUST BE OUTSIDE __init__
+   
     def log_prediction(self, amount, prob, is_fraud, risk_level):
         self.predictions.append(int(is_fraud))
         self.fraud_scores.append(float(prob))
