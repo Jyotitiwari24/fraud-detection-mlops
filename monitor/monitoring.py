@@ -10,6 +10,7 @@ class FraudMonitor:
         self.predictions = []
         self.fraud_scores = []
         self.timestamps = []
+        
 
         os.makedirs("monitoring", exist_ok=True)
         self.log_file = "monitoring/predictions.jsonl"
@@ -23,7 +24,12 @@ class FraudMonitor:
             "fraud_rate": 0.0,
             "avg_confidence": 0.0,
             "last_updated": None,
+        
         }
+           
+    def get_statistics(self):
+        
+        return self.stats  
 
    
     def log_prediction(self, amount, prob, is_fraud, risk_level):

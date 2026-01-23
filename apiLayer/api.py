@@ -57,7 +57,8 @@ class Transaction(BaseModel):
     V27: float
     V28: float
     actual_fraud: Optional[bool] = Field(None, description="True label if known (for monitoring)")
-    
+    risk_level: Optional[str] = "low"
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -125,12 +126,12 @@ def root():
 
 @app.get("/health")
 def health():
-    """Get model and system information"""
     return {
-        "status": "healthy",
-        "model_info": metadata,
+        "status": "ok",
         "monitoring": monitor.get_statistics()
     }
+
+
 
 
 @app.post("/predict", response_model=PredictionResponse)
@@ -178,9 +179,16 @@ def predict_fraud(transaction: Transaction):
         
         # Log to monitoring system
         transaction_dict = transaction.dict()
-        actual_label = transaction_dict.pop('actual_fraud', None)
-        monitor.log_prediction(transaction_dict, result, actual_label)
-        
+        actual_label = transaction_dict.pop('actual_fraud', 0)
+
+        monitor.log_prediction(
+                amount=transaction.Amount,
+                prob=probability,
+                is_fraud=is_fraud,
+                risk_level=transaction.risk_level
+)
+
+
         logger.info(f"Prediction: fraud={is_fraud}, prob={probability:.4f}, amount=${transaction.Amount:.2f}")
         
         return PredictionResponse(**result)
