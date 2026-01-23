@@ -138,6 +138,15 @@ Prometheus & Grafana monitoring
 CI/CD pipeline
 Real dataset integration
 
+**Production Issues Resolved**
+
+Fixed Docker container unhealthy state by implementing internal Python healthcheck
+
+Resolved monitoring system crash due to incorrect function signature
+
+Handled NoneType label issue in prediction logging
+
+Rebased and refactored project structure into modular API, monitoring, and deployment layers
 
 This project demonstrates:
 End-to-end ML workflow
